@@ -1,32 +1,18 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+      <h1>Timer </h1>
+      <h1>{{ time }}</h1>
+      <h1>Todo List:</h1>
+      <div v-for="todo in list" :key="todo.id" @blur="todo.selected = false">
+          <p class="letter" @click="todo.selected = true" v-if="!todo.selected">
+            {{ todo.content }}
+          </p>
+          <input v-model="todo.content" @keypress.enter="todo.selected = false" v-else/>
+      </div>
+      <div v-if="!newTodo" @click="newTodo = true">
+          +
+      </div>
+      <input v-model="value" v-else @keyup.enter="add(value)"/>
   </div>
 </template>
 
@@ -35,12 +21,58 @@ export default {
   name: 'HelloWorld',
   props: {
     msg: String
-  }
+  },
+    data() {
+        return {
+            newTodo: false,
+            value: "",
+            seconds: 1500,
+            list : [
+            {
+                id: 1,
+                content: "Prueba 1",
+                selected: false
+            },
+            {
+                id: 2,
+                content: "Prueba 2",
+                selected: false
+            }
+            ]
+        }
+    },
+    created() {
+         this.interval = setInterval(() => this.seconds--, 1000);
+    },
+    methods: {
+        add(todo) {
+            this.list.push({
+                id: this.list.length + 1,
+                content: todo,
+                selected: false
+            });
+            this.value = "";
+            this.newTodo = false;
+        }
+    },
+    computed: {
+        time() {
+            return parseInt(this.seconds/60) + ":" + this.seconds%60
+        }
+    }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+p {
+    text-decoration: none;
+    transition-duration: 0.5s;
+}
+
+p:hover {
+    font-weight: 900;
+}
 h3 {
   margin: 40px 0 0;
 }
@@ -51,8 +83,5 @@ ul {
 li {
   display: inline-block;
   margin: 0 10px;
-}
-a {
-  color: #42b983;
 }
 </style>
