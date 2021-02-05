@@ -1,22 +1,47 @@
 <template>
-  <div class="hello">
-      <h1>Timer </h1>
-      <h1>{{ time }}</h1>
-      <h1>Todo List:</h1>
-      <div v-for="todo in list" :key="todo.id" @blur="todo.selected = false">
-          <p class="letter" @click="todo.selected = true" v-if="!todo.selected">
-            {{ todo.content }}
-          </p>
-          <input v-model="todo.content" @keypress.enter="todo.selected = false" v-else/>
+  <div class="bg-red-600 w-full h-screen text-white">
+      <div class="flex size border-b border-black">
+          <h3 class="col-span-3">Pomofocus</h3>
+          <button class="col">Report</button>
+          <button class="col">Setting</button>
+          <button class="col">Login</button>
       </div>
-      <div v-if="!newTodo" @click="newTodo = true">
-          +
+      <div class="grid justify-items-center gap-4 mt-4">
+          <div class="bg-red-500 text-white size text-center rounded-xl">
+              <div class="grid grid-cols-3 justify-center p-4">
+                  <button class="text-lg">Pomodoro</button>
+                  <button class="text-lg">Long Break</button>
+                  <button class="text-lg">Short Break</button>
+              </div>
+              <h1 class="text-4xl">Pomodoro </h1>
+              <h1 class="text-5xl text-bold">{{ time }}</h1>
+              <button class="text-xl text-red-500 w-1/2 py-3 m-4 font-bold bg-white rounded-md shadow-md" @click="active = !active">{{buttonLabel}}</button>
+          </div>
+          <p>Time to work!</p>
+          <div class="border-b-2 size">
+              <p class="text-lg text-bold">Todo List:</p>
+          </div>
+          <div v-for="todo in list" class="size bg-white text-black border-l-8 border-black p-3 rounded-md" :key="todo.id" @blur="todo.selected = false">
+              <p class="" @click="todo.selected = true" v-if="!todo.selected">
+                {{ todo.content }}
+              </p>
+              <input v-model="todo.content" @mouseleave="todo.selected = false" @keypress.enter="todo.selected = false" v-else/>
+          </div>
+          <div v-if="!newTodo" class="size text-center p-2 text-lg text-white text-bold border-2 border-white border-dashed opacity-50 hover:opacity-75" @click="newTodo = true">
+              + Add Task
+          </div>
+          <input v-model="value" v-else @keyup.enter="add(value)"/>
       </div>
-      <input v-model="value" v-else @keyup.enter="add(value)"/>
   </div>
 </template>
 
 <script>
+let times = {
+    short: 300,
+    long: 900,
+    pomo: 1500
+};
+
 export default {
   name: 'HelloWorld',
   props: {
@@ -25,8 +50,9 @@ export default {
     data() {
         return {
             newTodo: false,
+            active: false,
             value: "",
-            seconds: 1500,
+            seconds: times.pomo,
             list : [
             {
                 id: 1,
@@ -42,7 +68,11 @@ export default {
         }
     },
     created() {
-         this.interval = setInterval(() => this.seconds--, 1000);
+        this.interval = setInterval(() =>{
+            if(this.active) {
+                this.seconds--
+            }
+        }, 1000);
     },
     methods: {
         add(todo) {
@@ -53,35 +83,34 @@ export default {
             });
             this.value = "";
             this.newTodo = false;
+        },
+        restart() {
+            this.seconds = times.pomo;
+            this.active = false;
+        },
+        notify() {
+            new Notification("hi there").show()
         }
     },
     computed: {
         time() {
             return parseInt(this.seconds/60) + ":" + this.seconds%60
+        },
+        buttonLabel() {
+            return this.active ? 'Stop' : 'Start';
         }
     }
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-p {
-    text-decoration: none;
-    transition-duration: 0.5s;
+.size {
+    width: 480px;
 }
 
-p:hover {
-    font-weight: 900;
-}
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
+@media only screen and (max-width: 600px) {
+    .size {
+        width: 350;
+    }
 }
 </style>
