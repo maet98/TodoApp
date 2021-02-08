@@ -21,21 +21,19 @@
           <div class="border-b-2 size">
               <p class="text-lg text-bold">Todo List:</p>
           </div>
-          <div v-for="todo in list" class="size bg-white text-black border-l-8 border-black p-3 rounded-md" :key="todo.id" @blur="todo.selected = false">
-              <p class="" @click="todo.selected = true" v-if="!todo.selected">
-                {{ todo.content }}
-              </p>
-              <input v-model="todo.content" @mouseleave="todo.selected = false" @keypress.enter="todo.selected = false" v-else/>
-          </div>
+          <task v-for="todo in list" class="size" :task="todo" :key="todo.id"/>
           <div v-if="!newTodo" class="size text-center p-2 text-lg text-white text-bold border-2 border-white border-dashed opacity-50 hover:opacity-75" @click="newTodo = true">
               + Add Task
           </div>
           <input v-model="value" v-else @keyup.enter="add(value)"/>
+
+          <task class="size"/>
       </div>
   </div>
 </template>
 
 <script>
+import task from "./task";
 let times = {
     short: 300,
     long: 900,
@@ -43,10 +41,13 @@ let times = {
 };
 
 export default {
-  name: 'HelloWorld',
+  name: 'Home',
   props: {
     msg: String
   },
+    components: {
+        task
+    },
     data() {
         return {
             newTodo: false,
@@ -57,11 +58,13 @@ export default {
             {
                 id: 1,
                 content: "Prueba 1",
+                estimate: 1,
                 selected: false
             },
             {
                 id: 2,
                 content: "Prueba 2",
+                estimate: 2,
                 selected: false
             }
             ]
