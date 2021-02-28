@@ -1,17 +1,26 @@
 <template>
-  <div class="bg-red-600 w-full h-screen text-white">
-      <div class="flex size border-b border-black">
-          <h3 class="col-span-3">Pomofocus</h3>
-          <button class="col">Report</button>
-          <button class="col">Setting</button>
-          <button class="col">Login</button>
+    <div :class="{'bg-green-800': active}" class="transition duration-1000 flex flex-col align-center bg-red-600 w-full h-screen text-white">
+      <div class="flex self-center text-xl justify-between border-b border-black w-3/4 h-10">
+          <div class="flex">
+              <i class="fas fa-check-circle m-1"></i>
+              <p class="font-bold col-span-3">Pomofocus</p>
+          </div>
+          <div>
+              <button class="col">Report</button>
+          </div>
+          <div>
+              <button class="col">Setting</button>
+          </div>
+          <div>
+              <button class="col">Login</button>
+          </div>
       </div>
       <div class="grid justify-items-center gap-4 mt-4">
-          <div class="bg-red-500 text-white size text-center rounded-xl">
+          <div :class="{'bg-green-700': active}" class="transition duration-1000 bg-red-500 text-white size text-center rounded-xl">
               <div class="grid grid-cols-3 justify-center p-4">
-                  <button class="text-lg">Pomodoro</button>
-                  <button class="text-lg">Long Break</button>
-                  <button class="text-lg">Short Break</button>
+                  <button class="text-lg" @click="seconds = 1500">Pomodoro</button>
+                  <button class="text-lg" @click="seconds = 900">Long Break</button>
+                  <button class="text-lg" @click="seconds = 300">Short Break</button>
               </div>
               <h1 class="text-4xl">Pomodoro </h1>
               <h1 class="text-5xl text-bold">{{ time }}</h1>
@@ -21,19 +30,19 @@
           <div class="border-b-2 size">
               <p class="text-lg text-bold">Todo List:</p>
           </div>
-          <task v-for="todo in list" class="size" :task="todo" :key="todo.id"/>
+          <task v-for="item in list" :key="item.key" class="size" :todo="item" @todochange="update"/>
           <div v-if="!newTodo" class="size text-center p-2 text-lg text-white text-bold border-2 border-white border-dashed opacity-50 hover:opacity-75" @click="newTodo = true">
               + Add Task
           </div>
           <input v-model="value" v-else @keyup.enter="add(value)"/>
 
-          <task class="size"/>
       </div>
   </div>
 </template>
 
 <script>
-import task from "./task";
+import Task from './task.vue';
+
 let times = {
     short: 300,
     long: 900,
@@ -42,12 +51,9 @@ let times = {
 
 export default {
   name: 'Home',
-  props: {
-    msg: String
+  components: {
+      Task
   },
-    components: {
-        task
-    },
     data() {
         return {
             newTodo: false,
@@ -78,6 +84,9 @@ export default {
         }, 1000);
     },
     methods: {
+        update(value) {
+            this.list[0] = value;
+        },
         add(todo) {
             this.list.push({
                 id: this.list.length + 1,
@@ -93,11 +102,18 @@ export default {
         },
         notify() {
             new Notification("hi there").show()
+        },
+        padLeadingZeros(num, size) {
+            var s = num+"";
+            while (s.length < size) s = "0" + s;
+            return s;
         }
     },
     computed: {
         time() {
-            return parseInt(this.seconds/60) + ":" + this.seconds%60
+            var minutes = parseInt(this.seconds /60)
+            var seconds = this.seconds%60
+            return this.padLeadingZeros(minutes,2) + ":" + this.padLeadingZeros(seconds, 2)
         },
         buttonLabel() {
             return this.active ? 'Stop' : 'Start';
