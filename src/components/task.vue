@@ -15,6 +15,7 @@
             </div>
         </div>
         <div v-else class="flex align-center justify-between bg-white text-black  p-3 rounded-md" :class="{'border-l-8 border-black': task.selected }"  >
+            <i class="fas fa-check-circle fa-x m-1 " :class="isSelected"></i>
               <p class="" v-if="!task.selected">
                 {{ task.content }}
               </p>
@@ -25,7 +26,10 @@
 
 <script>
 export default {
-    props:["todo"],
+    props:{
+        todo: Object,
+        selected: Boolean
+    },
     data() {
         return {
             title: '',
@@ -33,6 +37,7 @@ export default {
         }
     },
     mounted() {
+        console.log(this.selected);
         window.addEventListener("keyup",function(e) {
             if(e.keyCode === 27) {
                 this.$emit('todochange', false)
@@ -45,7 +50,15 @@ export default {
         },
         set: function (value) {
             return this.$emit('todochange', value)
+        },
+        isSelected() {
+            console.log(this.selected);
+            if(this.selected) {
+                return "text-black";
+            } else {
+                return "text-grey-300";
+            }
         }
-    }
+    },
 }
 </script>

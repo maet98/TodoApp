@@ -1,5 +1,5 @@
 <template>
-    <div :class="{'bg-green-800': active}" class="transition duration-1000 flex flex-col align-center bg-red-600 w-full h-screen text-white">
+    <div :class="getColors" class="transition duration-1000 flex flex-col align-center w-full h-full text-white">
       <div class="flex self-center text-xl justify-between border-b border-black w-3/4 h-10">
           <div class="flex">
               <i class="fas fa-check-circle m-1"></i>
@@ -15,27 +15,29 @@
               <button class="col">Login</button>
           </div>
       </div>
+      <button @click="notification">Notify</button>
       <div class="grid justify-items-center gap-4 mt-4">
-          <div :class="{'bg-green-700': active}" class="transition duration-1000 bg-red-500 text-white size text-center rounded-xl">
+          <div :class="getLightColor" class="transition duration-1000  text-white size text-center rounded-xl">
               <div class="grid grid-cols-3 justify-center p-4">
-                  <button class="text-lg" @click="seconds = 1500">Pomodoro</button>
-                  <button class="text-lg" @click="seconds = 900">Long Break</button>
-                  <button class="text-lg" @click="seconds = 300">Short Break</button>
+                  <button class="text-lg" @click="changeTimer('pomo')">Pomodoro</button>
+                  <button class="text-lg" @click="changeTimer('long')">Long Break</button>
+                  <button class="text-lg" @click="changeTimer('short')">Short Break</button>
               </div>
               <h1 class="text-4xl">Pomodoro </h1>
               <h1 class="text-5xl text-bold">{{ time }}</h1>
               <button class="text-xl text-red-500 w-1/2 py-3 m-4 font-bold bg-white rounded-md shadow-md" @click="active = !active">{{buttonLabel}}</button>
           </div>
-          <p>Time to work!</p>
+          <div>{{ getSelectedText }}</div>
           <div class="border-b-2 size">
               <p class="text-lg text-bold">Todo List:</p>
           </div>
-          <task v-for="item in list" :key="item.key" class="size" :todo="item" @todochange="update"/>
+          <div class="size" v-for="(item, index) in list" @click="selected = index" :key="item.key">
+              <task :selected="index === selected" :todo="item" @todochange="update"/>
+          </div>
           <div v-if="!newTodo" class="size text-center p-2 text-lg text-white text-bold border-2 border-white border-dashed opacity-50 hover:opacity-75" @click="newTodo = true">
               + Add Task
           </div>
-          <input v-model="value" v-else @keyup.enter="add(value)"/>
-
+          <task :selected="true" v-model="todo" v-else @keyup.enter="add(value)"/>
       </div>
   </div>
 </template>
@@ -50,15 +52,22 @@ let times = {
 };
 
 export default {
-  name: 'Home',
-  components: {
-      Task
-  },
+    name: 'Home',
+    components: {
+        Task
+    },
     data() {
         return {
-            newTodo: false,
             active: false,
-            value: "",
+            selected: -1,
+            todo: {
+                id: 1,
+                content: "",
+                estimate: 0,
+                selected: true
+            },
+            newTodo: false,
+            actual_timer: "pomo",
             seconds: times.pomo,
             list : [
             {
@@ -72,20 +81,41 @@ export default {
                 content: "Prueba 2",
                 estimate: 2,
                 selected: false
-            }
-            ]
+            }]
         }
     },
     created() {
         this.interval = setInterval(() =>{
-            if(this.active) {
+            if(this.active && this.seconds > 0) {
                 this.seconds--
+                document.title = this.getTitle
+                if(this.seconds == 0) {
+                    this.notification()
+                }
             }
         }, 1000);
+        document.title = this.getTitle
     },
     methods: {
+        notification () {
+          this.$notification.show('Hello World', {
+            body: 'This is an example!'
+          }, {});
+        },
         update(value) {
             this.list[0] = value;
+        },
+        changeTimer(value) {
+            if(value === "pomo") {
+                this.seconds = times.pomo
+                this.actual_timer = "pomo"
+            } else if( value === "long") {
+                this.seconds = times.long
+                this.actual_timer = "long"
+            } else {
+                this.seconds = times.short
+                this.actual_timer = "short"
+            }
         },
         add(todo) {
             this.list.push({
@@ -117,6 +147,38 @@ export default {
         },
         buttonLabel() {
             return this.active ? 'Stop' : 'Start';
+        },
+        getColors() {
+            if(this.actual_timer === "short") {
+                return "bg-green-800";
+            } else if(this.actual_timer === "long") {
+                return "bg-blue-800";
+            } else {
+                return "bg-red-800";
+            }
+        },
+        getTitle() {
+            if(this.active) {
+                return this.time +"-" + this.getSelectedText;
+            } else {
+                return "PomoMiguel"
+            }
+        },
+        getLightColor() {
+            if(this.actual_timer === "short") {
+                return "bg-green-700";
+            } else if(this.actual_timer === "long") {
+                return "bg-blue-700";
+            } else {
+                return "bg-red-700";
+            }
+        },
+        getSelectedText() {
+            if(this.selected === -1) {
+                return "Time to work!"
+            } else {
+                return this.list[this.selected].content;
+            }
         }
     }
 }
